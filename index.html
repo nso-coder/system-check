@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System & Speed Check | PH CS Recruitment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0; --surface: #ffffff; --border: #e2e0d8; 
+    --text: #1a1a18; --text2: #6b6a60; --accent: #10b981; 
+    --red: #ef4444; --green: #10b981; --amber: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'DM Sans', sans-serif; }
+  body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+  .container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+  h1 { font-size: 20px; margin-bottom: 5px; text-align: center; }
+  p.subtitle { color: var(--text2); font-size: 14px; text-align: center; margin-bottom: 25px; }
+  
+  .metric-box { border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .metric-name { font-weight: 600; font-size: 14px; }
+  .metric-val { font-size: 14px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
+  .pass { background: var(--green); }
+  .fail { background: var(--red); }
+  .warn { background: var(--amber); }
+
+  button { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
+  button:hover:not(:disabled) { opacity: 0.9; }
+  button:disabled { background: #ccc; cursor: not-allowed; }
+  #copy-btn { background: var(--text); display: none; }
+  
+  .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>💻 System & Network Check</h1>
+  <p class="subtitle">Please run this test on the laptop/PC you intend to use for work. Do not run this on a mobile phone.</p>
+
+  <div class="metric-box">
+    <div class="metric-name">Operating System</div>
+    <div class="metric-val" id="os-val">Waiting... <div class="status-dot"></div></div>
+  </div>
+
+  <div class="metric-box">
+    <div class="metric-name">CPU Cores (Min: 4)</div>
+    <div class="metric-val" id="cpu-val">Waiting... <div class="status-dot"></div></div>
+  </div>
+
+  <div class="metric-box">
+    <div class="metric-name">RAM (Min: 8GB)</div>
+    <div class="metric-val" id="ram-val">Waiting... <div class="status-dot"></div></div>
+  </div>
+
+  <div class="metric-box">
+    <div class="metric-name">Download Speed (Min: 10 Mbps)</div>
+    <div class="metric-val">
+      <span id="speed-val">Waiting...</span> 
+      <div class="loader" id="speed-loader"></div>
+      <div class="status-dot" id="speed-dot"></div>
+    </div>
+  </div>
+
+  <button id="run-btn" onclick="runAllTests()">Run Diagnostics</button>
+  <button id="copy-btn" onclick="copyResults()">📋 Copy Results to Clipboard</button>
+</div>
+
+<script>
+  let finalResults = "";
+
+  function getOS() {
+    let userAgent = window.navigator.userAgent;
+    if (userAgent.indexOf("Windows NT 10.0") !== -1) return "Windows 10/11";
+    if (userAgent.indexOf("Windows NT 6.2") !== -1) return "Windows 8";
+    if (userAgent.indexOf("Mac") !== -1) return "Mac OS";
+    if (userAgent.indexOf("Linux") !== -1) return "Linux";
+    return "Unknown/Mobile";
+  }
+
+  function updateUI(id, text, statusClass) {
+    document.getElementById(id).innerHTML = `${text} <div class="status-dot ${statusClass}"></div>`;
+  }
+
+  async function runAllTests() {
+    const btn = document.getElementById('run-btn');
+    btn.disabled = true;
+    btn.innerText = "Running Test... Please wait";
+    document.getElementById('speed-loader').style.display = "block";
+    document.getElementById('speed-val').innerText = "Testing... ";
+    document.getElementById('speed-dot').className = "status-dot";
+
+    // 1. Check OS
+    const os = getOS();
+    const osPass = os.includes("Windows") || os.includes("Mac") ? "pass" : "fail";
+    updateUI('os-val', os, osPass);
+
+    // 2. Check CPU
+    const cores = navigator.hardwareConcurrency || "Unknown";
+    let cpuPass = "warn";
+    if (cores !== "Unknown") {
+      cpuPass = cores >= 4 ? "pass" : "fail";
+    }
+    updateUI('cpu-val', `${cores} Cores`, cpuPass);
+
+    // 3. Check RAM
+    // Note: deviceMemory is currently only supported in Chrome/Edge and caps at 8GB for privacy.
+    const ram = navigator.deviceMemory || "Unknown";
+    let ramPass = "warn";
+    let ramText = ram !== "Unknown" ? `${ram}GB+` : "Use Chrome to check";
+    if (ram !== "Unknown") {
+      ramPass = ram >= 8 ? "pass" : "fail";
+    }
+    updateUI('ram-val', ramText, ramPass);
+
+    // 4. Check Internet Speed (Downloads a 5MB payload from an open CDN)
+    const payloadUrl = "https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg"; 
+    const payloadSizeBits = 2.5 * 1024 * 1024 * 8; // approx 2.5MB in bits
+    
+    let speedMbps = 0;
+    try {
+      const startTime = new Date().getTime();
+      const response = await fetch(payloadUrl + "?cacheBust=" + startTime, { cache: "no-store" });
+      await response.blob();
+      const endTime = new Date().getTime();
+      
+      const durationSeconds = (endTime - startTime) / 1000;
+      speedMbps = (payloadSizeBits / durationSeconds / 1000000).toFixed(2);
+    } catch (e) {
+      speedMbps = "Error";
+    }
+
+    document.getElementById('speed-loader').style.display = "none";
+    let speedPass = "fail";
+    if (speedMbps !== "Error") {
+      speedPass = parseFloat(speedMbps) >= 10 ? "pass" : "fail";
+      document.getElementById('speed-val').innerText = `${speedMbps} Mbps`;
+      document.getElementById('speed-dot').className = `status-dot ${speedPass}`;
+    } else {
+      document.getElementById('speed-val').innerText = `Network Error`;
+      document.getElementById('speed-dot').className = `status-dot fail`;
+    }
+
+    // Format results for copying
+    const overall = (osPass === 'fail' || cpuPass === 'fail' || ramPass === 'fail' || speedPass === 'fail') ? "FAILED ❌" : "PASSED ✅";
+    
+    finalResults = `SYSTEM CHECK: ${overall}\nOS: ${os}\nCPU Cores: ${cores}\nRAM: ${ramText}\nSpeed: ${speedMbps} Mbps`;
+
+    // Update Buttons
+    btn.style.display = "none";
+    document.getElementById('copy-btn').style.display = "block";
+  }
+
+  function copyResults() {
+    navigator.clipboard.writeText(finalResults).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.innerText = "✅ Copied! Paste this in your form.";
+      btn.style.background = "var(--green)";
+      setTimeout(() => {
+        btn.innerText = "📋 Copy Results to Clipboard";
+        btn.style.background = "var(--text)";
+      }, 3000);
+    });
+  }
+</script>
+
+</body>
+</html>
