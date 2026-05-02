@@ -3,99 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verified System Check | PH CS Recruitment</title>
+<title>System Validation | PH CS Recruitment</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f0f2f5; --surface: #ffffff; --border: #e2e0d8; 
-    --text: #1a1a18; --accent: #0052cc; --green: #10b981; --red: #ef4444;
+    --bg: #f8f9fa; --surface: #ffffff; --text: #1a1a1b; --accent: #10b981; --red: #ef4444;
   }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 40px 20px; }
-  .cert-card { background: var(--surface); border: 2px solid var(--text); border-radius: 0; padding: 40px; width: 100%; max-width: 600px; position: relative; box-shadow: 20px 20px 0px rgba(0,0,0,0.05); }
-  .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(0,0,0,0.03); font-weight: 800; pointer-events: none; white-space: nowrap; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 40px 20px; color: var(--text); }
+  .cert-card { background: var(--surface); border: 2px solid #000; padding: 40px; width: 100%; max-width: 550px; position: relative; box-shadow: 10px 10px 0px rgba(0,0,0,0.05); }
+  .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 50px; color: rgba(0,0,0,0.02); font-weight: 900; pointer-events: none; white-space: nowrap; }
   
-  h1 { font-size: 24px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--text); padding-bottom: 10px; margin-bottom: 20px; }
-  .result-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #ccc; }
-  .label { font-weight: 700; color: var(--text); }
+  h1 { font-size: 20px; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; text-align: center; }
+  .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; }
+  .label { font-weight: 700; color: #555; }
   
-  .instruction-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; font-size: 13px; }
+  .instruction-box { background: #e8f0fe; border-left: 4px solid #1a73e8; padding: 15px; margin: 25px 0; font-size: 13px; line-height: 1.6; }
   
-  button { width: 100%; padding: 15px; background: var(--text); color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
-  #email-btn { background: var(--accent); display: none; }
-  
-  .status-tag { font-weight: 800; padding: 2px 8px; border: 1px solid var(--text); }
-  .pass { color: var(--green); }
+  button { width: 100%; padding: 16px; background: #000; color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+  button:hover { background: #333; }
+  button:disabled { background: #ccc; cursor: not-allowed; }
+
+  .status-badge { font-weight: 800; padding: 4px 10px; border: 1px solid #000; text-transform: uppercase; font-size: 12px; }
+  .pass { color: var(--accent); }
   .fail { color: var(--red); }
+  
+  .loader { border: 2px solid #f3f3f3; border-top: 2px solid #000; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; margin-left: 8px; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="cert-card" id="capture-area">
-  <div class="watermark">OFFICIAL CHECK</div>
-  <h1>System Diagnostic Certificate</h1>
-  <p style="font-size: 12px; margin-bottom: 20px;">Issued by: <b>PH CS Recruitment Portal</b></p>
-
-  <div id="results-area">
-    <p style="text-align: center; padding: 40px; color: #666;">Click the button below to start the verification process.</p>
+<div class="cert-card">
+  <div class="watermark">OFFICIAL VALIDATION</div>
+  <h1>System Diagnostic Results</h1>
+  
+  <div id="display-area">
+    <p style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
+      This diagnostic tool verifies if your workstation meets the minimum requirements for the PH CS Recruitment campaign.
+    </p>
+    <button id="run-btn" onclick="runTests()">Run System Scan</button>
   </div>
 
-  <div class="instruction-box" id="instruction" style="display:none;">
-    <b>⚠️ FINAL STEP REQUIRED:</b><br>
-    Since we need a visual record, please take a <b>Screenshot (Win+Shift+S)</b> of this exact window now. Then click the blue button below to attach your results via email.
+  <div id="verified-footer" style="display:none;">
+    <div class="instruction-box">
+      <strong>📋 SUBMISSION INSTRUCTIONS:</strong><br>
+      Your system check is complete. Please take a <b>Screenshot</b> of this entire window and <b>reply to the recruitment email</b> you received with the image attached.
+    </div>
+    <p style="text-align: center; font-size: 11px; color: #999;">Security Token: <span id="token-display"></span></p>
   </div>
-
-  <button id="run-btn" onclick="runTests()">Start Verified Scan</button>
-  <button id="email-btn" onclick="sendEmail()">📧 Send Verified Results via Email</button>
 </div>
 
 <script>
-  const MY_EMAIL = "your-email@example.com"; // CHANGE THIS TO YOUR EMAIL
-  let reportData = "";
-
   async function runTests() {
     const btn = document.getElementById('run-btn');
     btn.disabled = true;
-    btn.innerText = "🔍 SCANNING HARDWARE...";
+    btn.innerHTML = 'SCANNING... <span class="loader"></span>';
 
-    // Metrics (same logic as before)
-    const os = navigator.userAgent.includes("Windows") ? "Windows PC" : "Mac/Other";
-    const cores = navigator.hardwareConcurrency || "Unknown";
-    const ram = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "Unknown";
-    const timestamp = new Date().toLocaleString();
-    const sessionId = "REQ-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+    // Hardware checks
+    const os = navigator.userAgent.includes("Windows") ? "Windows" : "Other/Mac";
+    const cores = navigator.hardwareConcurrency || "N/A";
+    const ram = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "N/A";
+    const ts = new Date().toLocaleString();
+    const sessionID = "ID-" + Math.random().toString(36).substr(2, 7).toUpperCase();
 
     // Speed Test
-    const startTime = new Date().getTime();
-    const response = await fetch("https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg?cb=" + startTime);
-    await response.blob();
-    const speed = ((20 / ((new Date().getTime() - startTime) / 1000))).toFixed(2); // Mock bit calc for speed
+    let speed = 0;
+    try {
+      const startTime = new Date().getTime();
+      const response = await fetch("https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg?nocache=" + startTime);
+      await response.blob();
+      const duration = (new Date().getTime() - startTime) / 1000;
+      speed = (20 / duration).toFixed(2); 
+    } catch (e) { speed = "Test Error"; }
 
     const isPass = (cores >= 4 && parseFloat(speed) >= 10);
 
-    // Update UI
-    document.getElementById('results-area').innerHTML = `
-      <div class="result-row"><span class="label">Session ID:</span> <span>${sessionId}</span></div>
-      <div class="result-row"><span class="label">Date/Time:</span> <span>${timestamp}</span></div>
-      <div class="result-row"><span class="label">Device OS:</span> <span>${os}</span></div>
-      <div class="result-row"><span class="label">CPU Cores:</span> <span>${cores}</span></div>
-      <div class="result-row"><span class="label">RAM Capacity:</span> <span>${ram}</span></div>
-      <div class="result-row"><span class="label">Internet Speed:</span> <span>${speed} Mbps</span></div>
-      <div class="result-row" style="border:none; margin-top:10px;">
-        <span class="label">FINAL ELIGIBILITY:</span> 
-        <span class="status-tag ${isPass ? 'pass' : 'fail'}">${isPass ? 'VERIFIED PASSED' : 'FAILED REQUIREMENTS'}</span>
+    // Update Display
+    document.getElementById('display-area').innerHTML = `
+      <div class="result-row"><span class="label">Reference No.</span> <span>${sessionID}</span></div>
+      <div class="result-row"><span class="label">Date/Time</span> <span>${ts}</span></div>
+      <div class="result-row"><span class="label">Operating System</span> <span>${os}</span></div>
+      <div class="result-row"><span class="label">Processor Cores</span> <span>${cores}</span></div>
+      <div class="result-row"><span class="label">Memory (RAM)</span> <span>${ram}</span></div>
+      <div class="result-row"><span class="label">Network Speed</span> <span>${speed} Mbps</span></div>
+      <div class="result-row" style="border:none; margin-top:20px;">
+        <span class="label">ELIGIBILITY</span>
+        <span class="status-badge ${isPass ? 'pass' : 'fail'}">${isPass ? 'VERIFIED PASS' : 'FAILED SPECS'}</span>
       </div>
     `;
 
-    reportData = `ID: ${sessionId}%0D%0AOS: ${os}%0D%0ACPU: ${cores}%0D%0ARAM: ${ram}%0D%0ASpeed: ${speed} Mbps%0D%0AStatus: ${isPass ? 'PASS' : 'FAIL'}`;
-    
-    btn.style.display = "none";
-    document.getElementById('email-btn').style.display = "block";
-    document.getElementById('instruction').style.display = "block";
-  }
-
-  function sendEmail() {
-    const subject = "Verified System Check Results - Recruitment";
-    window.location.href = `mailto:${MY_EMAIL}?subject=${encodeURIComponent(subject)}&body=${reportData}`;
+    document.getElementById('token-display').innerText = sessionID;
+    document.getElementById('verified-footer').style.display = "block";
   }
 </script>
 
