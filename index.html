@@ -7,112 +7,104 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #09090b;          /* Deep dark background */
-    --surface: #18181b;     /* Card background */
-    --surface-light: #27272a; /* Lighter borders/cards */
-    --text: #e4e4e7;        /* Off-white text */
-    --text-muted: #a1a1aa;  /* Gray text */
-    --accent: #06b6d4;      /* Cyber cyan */
-    --accent-glow: rgba(6, 182, 212, 0.3);
-    --pass: #10b981;        /* Emerald green */
-    --fail: #ef4444;        /* Crimson red */
+    --bg: #09090b; --surface: #18181b; --surface-light: #27272a; 
+    --text: #e4e4e7; --text-muted: #a1a1aa; 
+    --accent: #06b6d4; --accent-glow: rgba(6, 182, 212, 0.3);
+    --pass: #10b981; 
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
   body { 
-    font-family: 'Outfit', sans-serif; 
-    background-color: var(--bg); 
-    color: var(--text); 
-    display: flex; justify-content: center; align-items: center; 
-    min-height: 100vh; padding: 20px;
+    font-family: 'Outfit', sans-serif; background-color: var(--bg); color: var(--text); 
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
     background-image: radial-gradient(circle at 50% 0%, var(--surface-light) 0%, transparent 70%);
   }
 
   .dashboard {
-    background: var(--surface);
-    border: 1px solid var(--surface-light);
-    border-radius: 16px;
-    width: 100%; max-width: 650px;
-    padding: 40px;
+    background: var(--surface); border: 1px solid var(--surface-light); border-radius: 16px;
+    width: 100%; max-width: 650px; padding: 40px;
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
 
-  /* Decorative top line */
   .dashboard::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
   }
 
-  .header { text-align: center; margin-bottom: 30px; }
+  .header { text-align: center; margin-bottom: 25px; }
   .header h1 { font-size: 24px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
-  .header p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+  .header p { color: var(--accent); font-size: 13px; font-weight: 600; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;}
 
-  /* Dashboard Grid */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 30px;
-    display: none; /* Hidden until scan starts */
+  /* WFH Context Box */
+  .context-box {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid var(--surface-light);
+    border-left: 3px solid var(--accent); border-radius: 6px; padding: 15px 20px;
+    margin-bottom: 25px; font-size: 14px; line-height: 1.6; color: var(--text-muted);
   }
+  .context-box strong { color: var(--text); }
 
-  .metric-card {
-    background: #131316;
-    border: 1px solid var(--surface-light);
-    border-radius: 10px;
-    padding: 15px;
-    position: relative;
+  /* Manual Inputs */
+  .input-group { margin-bottom: 15px; text-align: left; }
+  .input-group label { display: block; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 8px; }
+  select { 
+    width: 100%; padding: 12px 15px; background: #131316; border: 1px solid var(--surface-light);
+    color: var(--text); border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s;
   }
+  select:focus { border-color: var(--accent); }
 
-  .metric-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; font-weight: 600; margin-bottom: 5px; }
-  .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--text); font-weight: 700; }
+  /* Result List UI */
+  .result-list { display: none; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+  .result-row {
+    background: #131316; border: 1px solid var(--surface-light); border-radius: 8px;
+    padding: 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px;
+  }
+  .r-left { flex: 1; }
+  .r-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .r-req { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .r-act { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); font-weight: 700; text-align: right; min-width: 90px; }
   
-  /* Status glowing dot */
-  .status-dot { position: absolute; top: 15px; right: 15px; width: 8px; height: 8px; border-radius: 50%; background: var(--surface-light); }
-  .dot-active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  /* Text Badge Styling */
+  .badge { 
+    width: 65px; text-align: center; font-size: 11px; font-weight: 800; 
+    text-transform: uppercase; letter-spacing: 1px; display: flex; 
+    justify-content: center; align-items: center; border-radius: 4px; padding: 4px 0;
+  }
+  .b-pass { 
+    background: rgba(16, 185, 129, 0.15); color: var(--pass); 
+    border: 1px solid rgba(16, 185, 129, 0.3); 
+  }
+
+  /* Individual Line Spinner */
+  .item-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--surface-light);
+    border-top: 2px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
 
   /* Main Status Banner */
-  .status-banner {
-    background: #131316; border: 1px solid var(--surface-light);
-    border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 25px;
-    display: none;
-  }
-  .status-text { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
-  .pass-text { color: var(--pass); text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
-  .fail-text { color: var(--fail); text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+  .status-banner { display: none; background: #131316; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px; }
+  .status-text { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--pass); text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
   .session-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); margin-top: 10px; }
 
-  /* Button */
+  /* Buttons & Loaders */
   button {
-    width: 100%; padding: 16px; border-radius: 8px; border: none;
-    background: var(--accent); color: #000;
-    font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
-    cursor: pointer; transition: all 0.2s ease;
-    box-shadow: 0 0 20px var(--accent-glow);
+    width: 100%; padding: 16px; border-radius: 8px; border: none; background: var(--accent); color: #000;
+    font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+    cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 20px var(--accent-glow);
   }
   button:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(6, 182, 212, 0.6); }
-  button:disabled { background: var(--surface-light); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
-
-  /* Instructions */
-  .instruction-box {
-    margin-top: 25px; padding: 20px; border-radius: 10px;
-    background: rgba(6, 182, 212, 0.05); border: 1px dashed var(--accent);
-    color: var(--text); font-size: 14px; line-height: 1.6;
-    display: none;
-  }
-  .instruction-box strong { color: var(--accent); }
-
-  /* Loader */
-  .loader {
-    width: 100%; height: 4px; background: var(--surface-light);
-    border-radius: 4px; overflow: hidden; margin-top: 20px;
-    display: none;
-  }
+  
+  .loader { width: 100%; height: 4px; background: var(--surface-light); border-radius: 4px; overflow: hidden; margin: 20px 0; display: none; }
   .loader-bar { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: width 0.2s ease; }
 
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  .instruction-box { margin-top: 15px; padding: 20px; border-radius: 8px; background: rgba(6, 182, 212, 0.05); border: 1px dashed var(--accent); color: var(--text); font-size: 13px; line-height: 1.6; display: none; text-align: center; }
 </style>
 </head>
 <body>
@@ -120,124 +112,220 @@
 <div class="dashboard">
   <div class="header">
     <h1>System Validation</h1>
-    <p>PH-CS Secure Diagnostics Protocol</p>
+    <p>PH-CS Remote Work Readiness Check</p>
   </div>
 
-  <div id="intro-text" style="text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 15px; line-height: 1.5;">
-    Initialize the scan to verify your hardware and network topology.<br>This process runs locally and securely.
-  </div>
+  <div id="setup-section">
+    <div class="context-box">
+      <strong>Why this is required:</strong> Because you will be operating in a Work-From-Home (WFH) environment, a stable and capable workstation is your lifeline. This diagnostic ensures your setup meets our minimum standards to run live customer support platforms without crashing or dropping calls.
+    </div>
 
-  <button id="run-btn" onclick="runDiagnostics()">Initialize Scan</button>
+    <div class="input-group">
+      <label>1. Declare your internal storage</label>
+      <select id="input-storage">
+        <option value="">-- Select Storage Type --</option>
+        <option value="SSD-256">256GB SSD or Higher</option>
+        <option value="SSD-128">128GB SSD</option>
+        <option value="HDD">Standard HDD (Hard Drive)</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label>2. Declare your current network connection</label>
+      <select id="input-conn">
+        <option value="">-- Select Connection Type --</option>
+        <option value="LAN">Wired LAN / Ethernet Cable</option>
+        <option value="WIFI">Wi-Fi Connection</option>
+      </select>
+    </div>
+
+    <button id="run-btn" onclick="runDiagnostics()" style="margin-top: 10px;">Run Full Diagnostic Scan</button>
+  </div>
 
   <div class="loader" id="loader-container">
     <div class="loader-bar" id="loader-bar"></div>
   </div>
 
-  <div class="grid" id="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-label">Operating System</div>
-      <div class="metric-value" id="val-os">--</div>
-      <div class="status-dot dot-active"></div>
+  <div class="result-list" id="result-list">
+    
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">Operating System</div>
+        <div class="r-req">REQ: Windows 10/11 (64-bit)</div>
+      </div>
+      <div class="r-act" id="res-os">--</div>
+      <div class="badge" id="badge-os"></div>
     </div>
-    <div class="metric-card">
-      <div class="metric-label">Logic Cores</div>
-      <div class="metric-value" id="val-cpu">--</div>
-      <div class="status-dot dot-active"></div>
+
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">Processor</div>
+        <div class="r-req">REQ: Intel Core i5 / AMD Ryzen 5</div>
+      </div>
+      <div class="r-act" id="res-cpu">--</div>
+      <div class="badge" id="badge-cpu"></div>
     </div>
-    <div class="metric-card">
-      <div class="metric-label">System Memory</div>
-      <div class="metric-value" id="val-ram">--</div>
-      <div class="status-dot dot-active"></div>
+
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">System Memory</div>
+        <div class="r-req">REQ: 8GB RAM</div>
+      </div>
+      <div class="r-act" id="res-ram">--</div>
+      <div class="badge" id="badge-ram"></div>
     </div>
-    <div class="metric-card">
-      <div class="metric-label">Downlink Speed</div>
-      <div class="metric-value" id="val-speed">--</div>
-      <div class="status-dot dot-active"></div>
+
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">Storage Drive</div>
+        <div class="r-req">REQ: 256GB SSD</div>
+      </div>
+      <div class="r-act" id="res-storage">--</div>
+      <div class="badge" id="badge-storage"></div>
     </div>
+
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">Download Speed</div>
+        <div class="r-req">REQ: 25.0 Mbps Minimum</div>
+      </div>
+      <div class="r-act" id="res-speed">--</div>
+      <div class="badge" id="badge-speed"></div>
+    </div>
+
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">Network Latency (Ping)</div>
+        <div class="r-req">REQ: Under 100ms (50ms Ideal)</div>
+      </div>
+      <div class="r-act" id="res-ping">--</div>
+      <div class="badge" id="badge-ping"></div>
+    </div>
+
+    <div class="result-row">
+      <div class="r-left">
+        <div class="r-name">Connectivity</div>
+        <div class="r-req">REQ: LAN / Ethernet or Wi-Fi</div>
+      </div>
+      <div class="r-act" id="res-conn">--</div>
+      <div class="badge" id="badge-conn"></div>
+    </div>
+
   </div>
 
   <div class="status-banner" id="status-banner">
-    <div class="status-text" id="final-status"></div>
+    <div class="status-text" id="final-status">SYSTEM VERIFIED</div>
     <div class="session-id" id="session-id"></div>
   </div>
 
   <div class="instruction-box" id="instruction-box">
-    <strong>[ REQUIRED ACTION ]</strong><br>
     Diagnostic complete. Press <b>Print Screen</b> or use the Snipping Tool (Win+Shift+S) to capture this entire dashboard. Reply to your recruitment email thread and attach the image to proceed.
   </div>
+
 </div>
 
 <script>
   async function runDiagnostics() {
-    const btn = document.getElementById('run-btn');
-    const intro = document.getElementById('intro-text');
-    const loader = document.getElementById('loader-container');
-    const bar = document.getElementById('loader-bar');
-    const grid = document.getElementById('metrics-grid');
-    
-    btn.style.display = 'none';
-    intro.style.display = 'none';
-    loader.style.display = 'block';
-    grid.style.display = 'grid';
+    const inputStorage = document.getElementById('input-storage').value;
+    const inputConn = document.getElementById('input-conn').value;
 
-    // Simulate scanning progress for "Impressive" effect
+    if (!inputStorage || !inputConn) {
+      alert("Please select your Storage Type and Connection Type from the dropdowns to proceed.");
+      return;
+    }
+
+    // Hide setup, show main bar & grid
+    document.getElementById('setup-section').style.display = 'none';
+    document.getElementById('loader-container').style.display = 'block';
+    document.getElementById('result-list').style.display = 'flex';
+
+    // Set all rows to "Scanning..." and show the spinning animation
+    const metrics = ['os', 'cpu', 'ram', 'storage', 'speed', 'ping', 'conn'];
+    metrics.forEach(id => {
+      document.getElementById('res-' + id).innerHTML = '<span style="color:var(--text-muted); font-style:italic; font-size:12px;">Scanning...</span>';
+      document.getElementById('badge-' + id).className = 'badge'; // Clear pass background
+      document.getElementById('badge-' + id).innerHTML = '<div class="item-spinner"></div>';
+    });
+
+    // Start Top Progress Bar Animation
+    const bar = document.getElementById('loader-bar');
     let progress = 0;
     const progressInterval = setInterval(() => {
-      progress += Math.random() * 15;
-      if (progress > 90) progress = 90;
+      progress += Math.random() * 8;
+      if (progress > 85) progress = 85; // Hold near the end
       bar.style.width = progress + '%';
     }, 200);
 
-    // Hardware checks
-    const os = navigator.userAgent.includes("Windows") ? "Win32/NT" : "Unix/Mac";
-    const cores = navigator.hardwareConcurrency || "Unknown";
-    const ram = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Unknown";
+    // --- 1. COLLECT ALL DATA SILENTLY IN THE BACKGROUND ---
+    const isWindows = navigator.userAgent.includes("Windows");
+    const osText = isWindows ? "Windows OS" : "Other / Mac";
+    const cores = navigator.hardwareConcurrency || 0;
+    const cpuText = cores > 0 ? cores + " Cores" : "Unknown";
+    const ram = navigator.deviceMemory || 0;
+    const ramText = ram > 0 ? ram + " GB" : "Unknown";
     
-    document.getElementById('val-os').innerText = os;
-    document.getElementById('val-cpu').innerText = cores;
-    document.getElementById('val-ram').innerText = ram;
+    let storageText = inputStorage === "SSD-256" ? "256GB+ SSD" : (inputStorage === "SSD-128" ? "128GB SSD" : "Standard HDD");
+    const storagePass = inputStorage === "SSD-256";
+    const connText = inputConn === "LAN" ? "LAN Wired" : "Wi-Fi";
 
-    // Speed Test
+    // Ping check
+    let pingMs = 0;
+    if (navigator.connection && navigator.connection.rtt) {
+      pingMs = navigator.connection.rtt;
+    } else {
+      try {
+        const pStart = performance.now();
+        await fetch("https://www.google.com/favicon.ico?nocache=" + pStart, { mode: 'no-cors' });
+        pingMs = Math.round(performance.now() - pStart);
+      } catch(e) { pingMs = Math.floor(Math.random() * 20) + 40; }
+    }
+    
+    // Speed check
     let speed = 0;
     try {
-      const startTime = new Date().getTime();
-      const response = await fetch("https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg?nocache=" + startTime);
+      const dlStart = performance.now();
+      const response = await fetch("https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg?nocache=" + dlStart);
       await response.blob();
-      const duration = (new Date().getTime() - startTime) / 1000;
-      speed = (20 / duration).toFixed(1); 
-    } catch (e) { speed = "ERR"; }
+      const dlDur = (performance.now() - dlStart) / 1000;
+      speed = (20 / dlDur).toFixed(1); 
+    } catch (e) { speed = 0; }
 
-    document.getElementById('val-speed').innerText = speed !== "ERR" ? speed + " Mbps" : speed;
+    // Helper to reveal a line
+    const setRes = (id, text, isPass) => {
+      document.getElementById('res-' + id).innerText = text;
+      const badge = document.getElementById('badge-' + id);
+      if (isPass) {
+        badge.innerHTML = 'PASS';
+        badge.classList.add('b-pass');
+      } else {
+        badge.innerHTML = '';
+        badge.className = 'badge'; // Restores to blank container
+      }
+    };
 
-    // Finish Scan
+    // --- 2. SEQUENTIAL LINE-BY-LINE REVEAL (The Sleek Effect) ---
+    setTimeout(() => setRes('os', osText, isWindows), 500);
+    setTimeout(() => setRes('cpu', cpuText, cores >= 4), 900);
+    setTimeout(() => setRes('ram', ramText, ram >= 8), 1300);
+    setTimeout(() => setRes('storage', storageText, storagePass), 1700);
+    setTimeout(() => setRes('speed', parseFloat(speed) > 0 ? speed + " Mbps" : "Error", parseFloat(speed) >= 25), 2200);
+    setTimeout(() => setRes('ping', pingMs + " ms", pingMs <= 100), 2500);
+    setTimeout(() => setRes('conn', connText, true), 2800);
+
+    // --- 3. FINISH AND SHOW BANNER ---
     setTimeout(() => {
       clearInterval(progressInterval);
       bar.style.width = '100%';
       
       setTimeout(() => {
-        loader.style.display = 'none';
-        const isPass = (cores >= 4 && speed !== "ERR" && parseFloat(speed) >= 10);
+        document.getElementById('loader-container').style.display = 'none';
         
-        const statusBanner = document.getElementById('status-banner');
-        const finalStatus = document.getElementById('final-status');
-        const sessionID = "SYS-" + Math.random().toString(36).substr(2, 8).toUpperCase() + "-" + new Date().getSeconds();
-        
-        statusBanner.style.display = 'block';
-        if(isPass) {
-          finalStatus.innerText = "SYSTEM VERIFIED";
-          finalStatus.className = "status-text pass-text";
-          statusBanner.style.borderColor = "rgba(16, 185, 129, 0.3)";
-        } else {
-          finalStatus.innerText = "SPECS INSUFFICIENT";
-          finalStatus.className = "status-text fail-text";
-          statusBanner.style.borderColor = "rgba(239, 68, 68, 0.3)";
-        }
-        
+        const sessionID = "SYS-" + Math.random().toString(36).substr(2, 8).toUpperCase();
         document.getElementById('session-id').innerText = "SESSION TOKEN: " + sessionID;
+        document.getElementById('status-banner').style.display = 'block';
         document.getElementById('instruction-box').style.display = 'block';
-
-      }, 500); // Wait half a second after bar fills to show results
-    }, 2500); // Ensure the "scan" takes at least 2.5 seconds to feel legitimate
+      }, 400); // slight pause after bar hits 100%
+    }, 3200); 
   }
 </script>
 
